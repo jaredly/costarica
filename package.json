@@ -1,0 +1,21 @@
+{
+  "name": "settlement-game",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "react-scripts": "0.7.0"
+  },
+  "dependencies": {
+    "aphrodite": "^1.1.0",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "redux": "^3.6.0",
+    "ws": "^1.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
