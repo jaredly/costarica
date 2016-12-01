@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {BankT} from '../server/types'
+import type {BankT} from './server/types'
 
 export default class Bank extends Component {
   props: {
@@ -11,7 +11,7 @@ export default class Bank extends Component {
     actions: {},
     myTurn: boolean,
   }
-  
+
   render() {
     const {bank, actions, myTurn} = this.props
     return <div className={css(styles.container)}>

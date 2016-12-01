@@ -54,7 +54,7 @@ const finishPhase = {
 }
 
 const nextPhase = (game: GameT): GameT => {
-  game = {...game}
+  game = {...game, turnStatus: {...game.turnStatus}}
   // TODO allow multiple rounds phases?
   game.turnStatus.phase = (game.turnStatus.phase + 1) % game.players.length
   if (game.turnStatus.phase === game.turnStatus.governor) {
@@ -74,7 +74,7 @@ const nextPhase = (game: GameT): GameT => {
 }
 
 module.exports = (game: GameT): GameT => {
-  game = {...game}
+  game = {...game, turnStatus: {...game.turnStatus}}
   game.turnStatus.turn = (game.turnStatus.turn + 1) % game.players.length
   if (game.turnStatus.turn === game.turnStatus.phase) {
     return nextPhase(game)

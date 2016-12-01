@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {TurnStatusT, PlayerT} from '../server/types'
+import type {TurnStatusT, PlayerT} from './server/types'
 
 export default class TurnStatus extends Component {
   props: {

@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {PreGameT} from '../server/types'
+import type {PreGameT} from './server/types'
 
 class JoinForm extends Component {
   state = {

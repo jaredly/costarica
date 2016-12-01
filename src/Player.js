@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {PlayerT} from '../server/types'
+import type {PlayerT} from './server/types'
 
 export default class Player extends Component {
   props: {

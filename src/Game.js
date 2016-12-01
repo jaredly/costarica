@@ -3,14 +3,14 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {GameT} from '../server/types'
+import type {GameT} from './server/types'
 
 import Board from './Board'
 import Player from './Player'
 import Bank from './Bank'
 import TurnStatus from './TurnStatus'
 
-class Game extends Component {
+export default class Game extends Component {
   props: {
     game: GameT,
     actions: {},

@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {BoardT} from '../server/types'
+import type {BoardT} from './server/types'
 
 export default class Board extends Component {
   props: {

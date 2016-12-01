@@ -2,14 +2,14 @@
 import React, { Component } from 'react';
 import {css, StyleSheet} from 'aphrodite'
 
-import type {StateT} from '../server/types'
-import {init} from '../server/game-state'
+import type {EmptyGameT, StateT} from './server/types'
 
-import GameT from './Game'
-import PreGameT from './PreGame'
+import Game from './Game'
+import PreGame from './PreGame'
 
 class App extends Component {
   props: {
+    actions: any,
   }
 
   state: {
@@ -19,13 +19,21 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      gameState: init(),
+      gameState: {status: 'not-loaded'}
     }
-    ws.on('state', evt => {
-      const state = JSON.parse(evt.data)
-      this.setState({gameState: state})
-    })
-    ws.send('init')
+    this.props.actions.addStateListener(gameState => this.setState({gameState}))
+    this.props.actions.init()
+  }
+
+  renderBody() {
+    const {gameState} = this.state
+    if (gameState.status === 'not-loaded') {
+      return <div>Loading...</div>
+    }
+    if (gameState.status === 'waiting') {
+      return <PreGame preGame={gameState} actions={this.props.actions} />
+    }
+    return <Game game={gameState} actions={this.props.actions} />
   }
 
   render() {

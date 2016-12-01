@@ -75,4 +75,8 @@ export type GameT = {
   turnStatus: TurnStatusT,
 }
 
-export type StateT = PreGameT | GameT
+export type EmptyGameT = {|
+  status: 'not-loaded'
+|}
+
+export type StateT = PreGameT | GameT | EmptyGameT
