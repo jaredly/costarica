@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {State, GameT, Board, Player, IslandType} from './types'
+import type {StateT, GameT, BoardT, PlayerT, IslandType} from './types'
 import type {BuildingType, Good, Role} from './consts'
 
 const playerState = require('./player-state')
@@ -10,20 +10,22 @@ const utils = require('./utils')
 const nextTurn = require('./nextTurn')
 const checkState = require('./check')
 
-exports.init = (): State => ({pid: -1, status: 'waiting', waitingPlayers: []})
+exports.init = (): StateT => ({pid: -1, status: 'waiting', waitingPlayers: []})
 
-exports.join = (state: State, name: string): State => {
+exports.join = (state: StateT, name: string): StateT => {
   if (state.status !== 'waiting') {
     throw new Error("Can't join a running game")
   }
   return {
     ...state,
-    waitingPlayers: state.waitingPlayers.concat([
-      playerState.init(state.waitingPlayers.length, name)]),
+    waitingPlayers: state.waitingPlayers.concat([{
+      id: state.waitingPlayers.length,
+      name
+    }]),
   }
 }
 
-exports.start = (state: State): GameT => {
+exports.start = (state: StateT): GameT => {
   if (state.status !== 'waiting') {
     throw new Error("Can't join a running game")
   }
@@ -97,4 +99,3 @@ exports.settle = (game: GameT, player: number, landType: IslandType): GameT => {
     })),
   }
 }
-

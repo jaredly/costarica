@@ -16,7 +16,7 @@ export type Builting = {
   inhabitants: number,
 }
 
-export type Player = {
+export type PlayerT = {
   id: number,
   name: string,
   dubloons: number,
@@ -26,13 +26,18 @@ export type Player = {
   buildings: {[key: BuildingType]: true},
 }
 
+export type WaitingPlayerT = {
+  id: number,
+  name: string,
+}
+
 export type PreGameT = {
   status: 'waiting',
   pid: number,
-  waitingPlayers: Array<Player>,
+  waitingPlayers: Array<WaitingPlayerT>,
 }
 
-export type Bank = {
+export type BankT = {
   quarriesLeft: number,
   goods: {[key: Good]: number},
   plantations: {[key: Good]: number},
@@ -40,7 +45,7 @@ export type Bank = {
   buildingsLeft: {[key: BuildingType]: number},
 }
 
-export type Board = Exact<{
+export type BoardT = Exact<{
   cargoShips: Array<{
     good: ?Good,
     size: number,
@@ -53,7 +58,7 @@ export type Board = Exact<{
   roleRewards: {[key: Role]: number},
 }>
 
-export type TurnStatus = {
+export type TurnStatusT = {
   governor: number,
   phase: number,
   currentRole: ?Role,
@@ -63,12 +68,11 @@ export type TurnStatus = {
 export type GameT = {
   status: 'playing',
   pid: number,
-  players: Array<Player>,
+  players: Array<PlayerT>,
 
-  bank: Bank,
-  board: Board,
-  turnStatus: TurnStatus,
+  bank: BankT,
+  board: BoardT,
+  turnStatus: TurnStatusT,
 }
 
-export type State = PreGameT | GameT
-
+export type StateT = PreGameT | GameT

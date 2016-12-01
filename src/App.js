@@ -2,18 +2,18 @@
 import React, { Component } from 'react';
 import {css, StyleSheet} from 'aphrodite'
 
-import type {State} from '../server/types'
+import type {StateT} from '../server/types'
 import {init} from '../server/game-state'
 
-import GameT from './GameT'
-import PreGameT from './PreGameT'
+import GameT from './Game'
+import PreGameT from './PreGame'
 
 class App extends Component {
   props: {
   }
 
   state: {
-    gameState: State,
+    gameState: StateT,
   }
 
   constructor() {

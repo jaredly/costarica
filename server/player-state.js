@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {Player} from './types'
+import type {WaitingPlayerT, PlayerT} from './types'
 
 function many<T>(num: number, make: () => T): Array<T> {
   const res = []
@@ -8,9 +8,9 @@ function many<T>(num: number, make: () => T): Array<T> {
   return res
 }
 
-module.exports.init = (id: number, name: string): Player => ({
-  id,
-  name,
+module.exports.init = (waitingPlayer: WaitingPlayerT): PlayerT => ({
+  id: waitingPlayer.id,
+  name: waitingPlayer.name,
   dubloons: 0,
   parkedColonists: 0,
   city: many(4, () => many(3, () => ({
@@ -21,4 +21,3 @@ module.exports.init = (id: number, name: string): Player => ({
   island: [], // max 12!
   buildings: {},
 })
-

@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {PreGameT, Board, Player} from './types'
+import type {PreGameT, BoardT, PlayerT} from './types'
 
 exports.init = (): PreGameT => ({
   status: 'waiting',

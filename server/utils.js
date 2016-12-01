@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {GameT, Board, Player} from './types'
+import type {GameT, BoardT, PlayerT} from './types'
 import type {Role, Good} from './consts'
 
 exports.revealPlantations = (game: GameT): GameT => {

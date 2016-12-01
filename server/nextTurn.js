@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {GameT, Board, Player, IslandType} from './types'
+import type {GameT, BoardT, PlayerT, IslandType} from './types'
 import type {BuildingType, Good, Role} from './consts'
 
 const checkState = require('./check')
