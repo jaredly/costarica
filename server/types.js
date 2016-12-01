@@ -1,44 +1,45 @@
 /* @flow */
 
-export type Good = 'coffee' | 'tobacco' | 'corn' | 'sugar' | 'indigo'
-
-// TODO might be good
-// export type BuildingType = 'smallIndigo' | 'smallSugar' | 'indigo' | 'sugar' | 'coffee' | 'tobacco'
+import type {Good, Role, BuildingType} from './consts'
 
 export type IslandType = Good | 'quarry'
 
-export type IslandSquare = {
+type Exact<T> = T & $Shape<T>
+
+export type IslandSquare = Exact<{
   type: ?IslandType,
   inhabited: bool,
-}
+}>
 
 export type Builting = {
-  type: ?string,
+  type: ?BuildingType,
   inhabitants: number,
 }
 
 export type Player = {
+  id: number,
   name: string,
   dubloons: number,
   parkedColonists: number,
-  board: {
-    city: Array<Array<Builting>>,
-    island: Array<IslandSquare>,
-  },
+  city: Array<Array<Builting>>,
+  island: Array<IslandSquare>,
+  buildings: {[key: BuildingType]: true},
 }
 
-export type Role = 'settler' | 'mayor' | 'builder' | 'craftsman' | 'trader' | 'captain'
+export type PreGame = {
+  status: 'waiting',
+  waitingPlayers: Array<Player>,
+}
 
-export type Board = {
-  players: Array<Player>,
+export type Bank = {
+  quarriesLeft: number,
+  goods: {[key: Good]: number},
+  plantations: {[key: Good]: number},
+  colonistsLeft: number,
+  buildingsLeft: {[key: BuildingType]: number},
+}
 
-  mayor: number,
-  phase: number,
-  currentRole: ?Role,
-  turn: number,
-  usedRoles: Array<Role>,
-  roleRewards: {[key: Role]: number},
-
+export type Board = Exact<{
   cargoShips: Array<{
     good: ?Good,
     size: number,
@@ -47,10 +48,25 @@ export type Board = {
   colonistShip: number,
   revealedPlantations: Array<Good>,
   tradingHouse: Array<Good>,
+  usedRoles: Array<Role>,
+  roleRewards: {[key: Role]: number},
+}>
 
-  quarriesLeft: number,
-  goods: {[key: Good]: number},
-  plantations: {[key: Good]: number},
-  colonistsLeft: number,
+export type TurnStatus = {
+  governor: number,
+  phase: number,
+  currentRole: ?Role,
+  turn: number,
 }
+
+export type Game = {
+  status: 'playing',
+  players: Array<Player>,
+
+  bank: Bank,
+  board: Board,
+  turnStatus: TurnStatus,
+}
+
+export type State = PreGame | Game
 

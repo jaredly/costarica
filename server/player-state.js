@@ -8,20 +8,17 @@ function many<T>(num: number, make: () => T): Array<T> {
   return res
 }
 
-module.exports.init = (name: string): Player => ({
+module.exports.init = (id: number, name: string): Player => ({
+  id,
   name,
   dubloons: 0,
   parkedColonists: 0,
-  board: {
-    city: many(4, () => many(3, () => ({
-      type: null, // this is the building type
-      tall: false, // if this takes 2 spaces
-      inhabitants: 0, // some cards require several
-    }))),
-    island: many(12, () => ({
-      type: null,
-      inhabited: false,
-    })),
-  },
+  city: many(4, () => many(3, () => ({
+    type: null, // this is the building type
+    tall: false, // if this takes 2 spaces
+    inhabitants: 0, // some cards require several
+  }))),
+  island: [], // max 12!
+  buildings: {},
 })
 

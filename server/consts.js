@@ -1,6 +1,24 @@
 /* @flow */
 
-exports.goods = {
+export type Good = $Keys<typeof goods>
+
+export type FactoryType = $Keys<typeof buildings.factories.col1> |
+  $Keys<typeof buildings.factories.col2> |
+  $Keys<typeof buildings.factories.col3>
+
+export type VioletType = $Keys<typeof buildings.violet.col1> |
+  $Keys<typeof buildings.violet.col2> |
+  $Keys<typeof buildings.violet.col3> |
+  $Keys<typeof buildings.violet.col4>
+
+export type BuildingType = FactoryType | VioletType
+
+export type Role = $Keys<typeof exports.roles>
+
+exports.totalVictoryPoints = 32 + 18 * 5
+exports.totalDubloons = 46 + 8 * 5
+
+const goods = exports.goods = {
   coffee: {
     value: 4,
     count: 9,
@@ -28,10 +46,28 @@ exports.goods = {
   },
 }
 
-exports.totalVictoryPoints = 32 + 18 * 5
-exports.totalDubloons = 46 + 8 * 5
+exports.roles = {
+  settler: {
+    description: 'Settle stuff',
+  },
+  mayor: {
+    description: 'Welcome newcomers',
+  },
+  builder: {
+    description: 'Build buildings',
+  },
+  craftsman: {
+    description: 'Harvest!',
+  },
+  trader: {
+    description: 'Trade goods for sweet moolah',
+  },
+  captain: {
+    description: 'Put stuff on ships',
+  },
+}
 
-exports.buildings = {
+const buildings = exports.buildings = {
   factories: {
     col1: {
       smallIndigo: {
@@ -72,7 +108,7 @@ exports.buildings = {
         cost: 1,
       },
       hacienda: {
-        bonus: '+1 population from supply',
+        bonus: '+1 plantation from supply',
         cost: 2,
       },
       constructionHut: {
@@ -147,27 +183,6 @@ exports.buildings = {
       },
 
     },
-  },
-}
-
-exports.roles = {
-  settler: {
-    description: 'Settle stuff',
-  },
-  mayor: {
-    description: 'Welcome newcomers',
-  },
-  builder: {
-    description: 'Build buildings',
-  },
-  craftsman: {
-    description: 'Harvest!',
-  },
-  trader: {
-    description: 'Trade goods for sweet moolah',
-  },
-  captain: {
-    description: 'Put stuff on ships',
   },
 }
 
