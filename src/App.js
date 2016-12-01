@@ -7,22 +7,24 @@ import type {EmptyGameT, StateT} from './server/types'
 import Game from './Game'
 import PreGame from './PreGame'
 
+type Props = {
+  actions: any,
+}
+
 class App extends Component {
-  props: {
-    actions: any,
-  }
+  props: Props
 
   state: {
     gameState: StateT,
   }
 
-  constructor() {
+  constructor(props: Props) {
     super()
     this.state = {
       gameState: {status: 'not-loaded'}
     }
-    this.props.actions.addStateListener(gameState => this.setState({gameState}))
-    this.props.actions.init()
+    props.actions.addStateListener(gameState => this.setState({gameState}))
+    props.actions.init()
   }
 
   renderBody() {
@@ -40,11 +42,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="App-header">
-          <h2>Welcome to React</h2>
+          <h2>Costa Rica</h2>
         </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        {this.renderBody()}
       </div>
     );
   }
