@@ -1,8 +1,9 @@
 /* @flow */
 
-import type {PreGame, Board, Player} from './types'
+import type {PreGameT, Board, Player} from './types'
 
-exports.init = (): PreGame => ({
+exports.init = (): PreGameT => ({
   status: 'waiting',
   waitingPlayers: [],
+  pid: -1,
 })

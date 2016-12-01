@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {Player, Board, Game, Bank} from './types'
+import type {Player, Board, GameT, Bank} from './types'
 
 const consts = require('./consts')
 
@@ -42,9 +42,10 @@ const buildingsForPlayers = nplayers => {
   return res
 }
 
-module.exports.init = (players: Array<Player>): Game => ({
+module.exports.init = (players: Array<Player>): GameT => ({
   status: 'playing',
   players: players,
+  pid: -1,
 
   turnStatus: {
     // Turn stuff

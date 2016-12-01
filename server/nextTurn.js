@@ -1,12 +1,12 @@
 /* @flow */
 
-import type {Game, Board, Player, IslandType} from './types'
+import type {GameT, Board, Player, IslandType} from './types'
 import type {BuildingType, Good, Role} from './consts'
 
 const checkState = require('./check')
 const consts = require('./consts')
 
-const nextRound = (game: Game): Game => {
+const nextRound = (game: GameT): GameT => {
   // TODO check completion criteria
   const governor = (game.turnStatus.governor + 1) % game.players.length
   const rewards = {...game.board.roleRewards}
@@ -53,7 +53,7 @@ const finishPhase = {
   })
 }
 
-const nextPhase = (game: Game): Game => {
+const nextPhase = (game: GameT): GameT => {
   game = {...game}
   // TODO allow multiple rounds phases?
   game.turnStatus.phase = (game.turnStatus.phase + 1) % game.players.length
@@ -73,7 +73,7 @@ const nextPhase = (game: Game): Game => {
   })
 }
 
-module.exports = (game: Game): Game => {
+module.exports = (game: GameT): GameT => {
   game = {...game}
   game.turnStatus.turn = (game.turnStatus.turn + 1) % game.players.length
   if (game.turnStatus.turn === game.turnStatus.phase) {

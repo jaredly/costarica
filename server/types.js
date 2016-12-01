@@ -26,8 +26,9 @@ export type Player = {
   buildings: {[key: BuildingType]: true},
 }
 
-export type PreGame = {
+export type PreGameT = {
   status: 'waiting',
+  pid: number,
   waitingPlayers: Array<Player>,
 }
 
@@ -59,8 +60,9 @@ export type TurnStatus = {
   turn: number,
 }
 
-export type Game = {
+export type GameT = {
   status: 'playing',
+  pid: number,
   players: Array<Player>,
 
   bank: Bank,
@@ -68,5 +70,5 @@ export type Game = {
   turnStatus: TurnStatus,
 }
 
-export type State = PreGame | Game
+export type State = PreGameT | GameT
 

@@ -1,6 +1,6 @@
 /* @flow */
 
-import type {State, Game, Board, Player, IslandType} from './types'
+import type {State, GameT, Board, Player, IslandType} from './types'
 import type {BuildingType, Good, Role} from './consts'
 
 const playerState = require('./player-state')
@@ -10,7 +10,7 @@ const utils = require('./utils')
 const nextTurn = require('./nextTurn')
 const checkState = require('./check')
 
-exports.init = (): State => ({status: 'waiting', waitingPlayers: []})
+exports.init = (): State => ({pid: -1, status: 'waiting', waitingPlayers: []})
 
 exports.join = (state: State, name: string): State => {
   if (state.status !== 'waiting') {
@@ -23,7 +23,7 @@ exports.join = (state: State, name: string): State => {
   }
 }
 
-exports.start = (state: State): Game => {
+exports.start = (state: State): GameT => {
   if (state.status !== 'waiting') {
     throw new Error("Can't join a running game")
   }
@@ -33,7 +33,7 @@ exports.start = (state: State): Game => {
   return board
 }
 
-exports.pickRole = (game: Game, player: number, role: Role): Game => {
+exports.pickRole = (game: GameT, player: number, role: Role): GameT => {
   checkState(!game.turnStatus.currentRole, 'Role should be empty')
   checkState(game.turnStatus.phase === player, 'Not your turn')
   checkState(game.board.usedRoles.indexOf(role) === -1,
@@ -70,13 +70,13 @@ const npl = (players, id, mod) => {
   return np
 }
 
-exports.skipTurn = (game: Game): Game => {
+exports.skipTurn = (game: GameT): GameT => {
   // TODO maybe make sure we're not captaining?
   // if (board.currentRole ===
   return nextTurn(game)
 }
 
-exports.settle = (game: Game, player: number, landType: IslandType): Game => {
+exports.settle = (game: GameT, player: number, landType: IslandType): GameT => {
   checkState(game.turnStatus.turn == player, 'Not your turn')
   checkState(game.turnStatus.currentRole == 'settler', 'Not the settling phase')
   checkState(1 + game.players[player].island.length <= 12,

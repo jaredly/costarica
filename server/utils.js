@@ -1,9 +1,9 @@
 /* @flow */
 
-import type {Game, Board, Player} from './types'
+import type {GameT, Board, Player} from './types'
 import type {Role, Good} from './consts'
 
-exports.revealPlantations = (game: Game): Game => {
+exports.revealPlantations = (game: GameT): GameT => {
   if (game.board.revealedPlantations.length >= game.players.length) {
     return game
   }
@@ -40,7 +40,7 @@ const dubloonsForPlayers = {
   '5': 4,
 }
 
-exports.givePlayersFirstPlantation = (game: Game): Game => {
+exports.givePlayersFirstPlantation = (game: GameT): GameT => {
   const plantations = {...game.bank.plantations}
   const players = game.players.map((player, i) => {
     const good = playersFirstPieces['' + game.players.length][i]
