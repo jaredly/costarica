@@ -13,11 +13,7 @@ module.exports.init = (waitingPlayer: WaitingPlayerT): PlayerT => ({
   name: waitingPlayer.name,
   dubloons: 0,
   parkedColonists: 0,
-  city: many(4, () => many(3, () => ({
-    type: null, // this is the building type
-    tall: false, // if this takes 2 spaces
-    inhabitants: 0, // some cards require several
-  }))),
+  city: [],
   island: [], // max 12!
   buildings: {},
 })

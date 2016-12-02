@@ -11,8 +11,8 @@ export type IslandSquare = Exact<{
   inhabited: bool,
 }>
 
-export type Builting = {
-  type: ?BuildingType,
+export type BuildingTile = {
+  type: BuildingType,
   inhabitants: number,
 }
 
@@ -21,7 +21,7 @@ export type PlayerT = {
   name: string,
   dubloons: number,
   parkedColonists: number,
-  city: Array<Array<Builting>>,
+  city: Array<BuildingTile>,
   island: Array<IslandSquare>,
   buildings: {[key: BuildingType]: true},
 }

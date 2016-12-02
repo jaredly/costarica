@@ -6,6 +6,7 @@ import makeActions from './actions'
 
 const ws = new WebSocket('ws://localhost:7810')
 
+console.log('a')
 ws.onopen = () => {
   ReactDOM.render(
     <App
@@ -14,4 +15,10 @@ ws.onopen = () => {
     document.getElementById('root')
   );
 
+}
+ws.onerror = () => {
+  console.log('failed to ws')
+}
+ws.onclose = () => {
+  console.log('closed')
 }

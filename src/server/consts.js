@@ -2,16 +2,26 @@
 
 export type Good = $Keys<typeof goods>
 
-export type FactoryType = $Keys<typeof buildings.factories.col1> |
-  $Keys<typeof buildings.factories.col2> |
-  $Keys<typeof buildings.factories.col3>
+export type FactoryType = $Keys<typeof organizedBuildings.factories.col1> |
+  $Keys<typeof organizedBuildings.factories.col2> |
+  $Keys<typeof organizedBuildings.factories.col3>
 
-export type VioletType = $Keys<typeof buildings.violet.col1> |
-  $Keys<typeof buildings.violet.col2> |
-  $Keys<typeof buildings.violet.col3> |
-  $Keys<typeof buildings.violet.col4>
+export type VioletType = $Keys<typeof organizedBuildings.violet.col1> |
+  $Keys<typeof organizedBuildings.violet.col2> |
+  $Keys<typeof organizedBuildings.violet.col3> |
+  $Keys<typeof organizedBuildings.violet.col4>
 
 export type BuildingType = FactoryType | VioletType
+
+export type BuildingT = {
+  type: BuildingType,
+  size: number,
+  cost: number,
+  col: number,
+  spaces: number,
+  bonus: string,
+  group: 'factories' | 'violet',
+}
 
 export type Role = $Keys<typeof exports.roles>
 
@@ -67,7 +77,7 @@ exports.roles = {
   },
 }
 
-const buildings = exports.buildings = {
+const organizedBuildings = {
   factories: {
     col1: {
       smallIndigo: {
@@ -186,3 +196,30 @@ const buildings = exports.buildings = {
   },
 }
 
+type PartBuilding = {
+  cost: number,
+  bonus?: string,
+  spaces?: number,
+}
+
+const m: any = {}
+const buildings: {[key: BuildingType]: BuildingT} = exports.buildings = m
+const addBuildings = (ones: any, group, size, col) => {
+  Object.keys(ones).forEach((key: BuildingType) => {
+    buildings[key] = {
+      type: key,
+      ...ones[key],
+      spaces: ones[key].spaces || 1,
+      group,
+      size,
+      col,
+    }
+  })
+}
+addBuildings(organizedBuildings.factories.col1, 'factories', 1, 1)
+addBuildings(organizedBuildings.factories.col2, 'factories', 1, 2)
+addBuildings(organizedBuildings.factories.col3, 'factories', 1, 3)
+addBuildings(organizedBuildings.violet.col1, 'violet', 1, 1)
+addBuildings(organizedBuildings.violet.col2, 'violet', 1, 2)
+addBuildings(organizedBuildings.violet.col3, 'violet', 1, 3)
+addBuildings(organizedBuildings.violet.col4, 'violet', 2, 4)

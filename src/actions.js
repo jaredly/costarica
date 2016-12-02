@@ -25,14 +25,23 @@ export default (ws) => {
   }
   const send = data => ws.send(JSON.stringify(data))
 
+  window.hack = fn => {
+    fn(currentState)
+    ws.send(JSON.stringify({type: 'hack', value: currentState}))
+  }
+
   ws.onmessage = event => {
-    console.log('got message', event.data)
+    // console.log('got message', event.data)
     const data = JSON.parse(event.data.toString())
-    (listeners[data.type] || []).forEach(fn => fn(data.value))
+    if (data.type === 'state') {
+      currentState = data.value;
+      window._currentState = currentState
+    }
+    ;(listeners[data.type] || []).forEach(fn => fn(data.value))
   }
 
   const res = {}
-  for (var name in serverActions) {
+  for (let name in serverActions) {
     if (name === 'init') {
       res.init = checked(
         () => currentState === null ? null : "Already initialized",

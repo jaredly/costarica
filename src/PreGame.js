@@ -43,10 +43,13 @@ export default class PreGame extends Component {
       {this.props.preGame.waitingPlayers.map(player => (
         <div
           className={css([styles.player, player.id === myId && styles.playerMe])}
-          id={player.id}>
+          key={player.id}>
           {player.id} : {player.name}
         </div>
       ))}
+      <button onClick={() => this.props.actions.start()}>
+        Start Game
+      </button>
     </div>
   }
 }

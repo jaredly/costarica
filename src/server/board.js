@@ -35,12 +35,7 @@ const fullPlantationsComplement = nplayers => {
 const buildingsForPlayers = nplayers => {
   const res = {}
   // TODO adjust for nplayers != 2
-  Object.keys(consts.buildings.factories).forEach(
-      col => Object.keys(consts.buildings.factories[col]).forEach(
-        key => res[key] = 2))
-  Object.keys(consts.buildings.violet).forEach(
-      col => Object.keys(consts.buildings.violet[col]).forEach(
-        key => res[key] = 1))
+  Object.keys(consts.buildings).forEach(key => res[key] = consts.buildings[key].group === 'factory' ? 2 : 1)
   return res
 }
 
