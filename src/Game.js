@@ -82,6 +82,7 @@ export default class Game extends Component {
       {game.players.map(player => (
         <Player
           key={player.id}
+          turnStatus={game.turnStatus}
           myTurn={myTurn}
           player={player}
           isMe={player.id === game.pid}
