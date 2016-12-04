@@ -35,13 +35,22 @@ const fullPlantationsComplement = nplayers => {
 const buildingsForPlayers = nplayers => {
   const res = {}
   // TODO adjust for nplayers != 2
-  Object.keys(consts.buildings).forEach(key => res[key] = consts.buildings[key].group === 'factory' ? 2 : 1)
+  Object.keys(consts.buildings).forEach(key => res[key] = consts.buildings[key].group === 'factories' ? 2 : 1)
   return res
+}
+
+const emptyRewards = () => {
+  const rewards = {}
+  Object.keys(consts.roles).forEach(role => {
+    rewards[role] = 0
+  })
+  return rewards
 }
 
 module.exports.init = (players: Array<WaitingPlayerT>): GameT => ({
   status: 'playing',
   players: players.map(playerState.init),
+  messages: [],
   pid: -1,
 
   turnStatus: {
@@ -50,6 +59,8 @@ module.exports.init = (players: Array<WaitingPlayerT>): GameT => ({
     phase: 0, // which player is starting this phase?
     turn: 0, // which player's turn is it within this phase?
     currentRole: null, // if null, the player still needs to choose
+    usedPrivilege: false,
+    usedHacienda: false,
   },
 
   board: {
@@ -62,7 +73,7 @@ module.exports.init = (players: Array<WaitingPlayerT>): GameT => ({
     revealedPlantations: [], // TODO reveal some plantations
     tradingHouse: [], // nothing in there yet
     usedRoles: [],
-    roleRewards: {}, // string -> int - how many dubloons on this one?
+    roleRewards: emptyRewards(), // string -> int - how many dubloons on this one?
   },
 
   bank: {

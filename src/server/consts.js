@@ -59,21 +59,27 @@ const goods = exports.goods = {
 exports.roles = {
   settler: {
     description: 'Settle stuff',
+    bonus: 'Can choose a quarry',
   },
   mayor: {
     description: 'Welcome newcomers',
+    bonus: 'Gets an extra colonist',
   },
   builder: {
     description: 'Build buildings',
+    bonus: '-1 building cost',
   },
   craftsman: {
     description: 'Harvest!',
+    bonus: 'One extra good',
   },
   trader: {
     description: 'Trade goods for sweet moolah',
+    bonus: '1 dubloon more',
   },
   captain: {
     description: 'Put stuff on ships',
+    bonus: '1 extra VP',
   },
 }
 

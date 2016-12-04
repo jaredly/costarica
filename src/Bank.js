@@ -5,6 +5,7 @@ import {css, StyleSheet} from 'aphrodite'
 
 import type {BankT, TurnStatusT, PlayerT} from './server/types'
 import consts from './server/consts'
+import utils from './server/utils'
 
 import BuildingTile from './BuildingTile'
 
@@ -29,7 +30,6 @@ export default class Bank extends Component {
   render() {
     const {bank, actions, myTurn, turnStatus, player} = this.props
     const amBuilding = myTurn && turnStatus.currentRole === 'builder'
-    const spotsFilled = amBuilding ? player.city.reduce((n, b) => n + consts.buildings[b.type].size, 0) : 0
     return <div className={css(styles.container)}>
       Bank<br/>
       Quarries: {bank.quarriesLeft}<br/>
@@ -44,12 +44,13 @@ export default class Bank extends Component {
               onTake={(
                 amBuilding
                 && !player.buildings[building.type] // can only have one of a kind
-                && building.size + spotsFilled <= 12
+                && building.size + player.citySize <= 12
                 && bank.buildingsLeft[building.type] > 0
-                && building.cost <= player.dubloons
+                && utils.costOfBuilding(building, player, turnStatus.phase === player.id) <= player.dubloons
               ) ? () => this.props.actions.build(building.type) : undefined}
               key={building.type}
               type={building.type}
+              cost={utils.costOfBuilding(building, player, amBuilding && turnStatus.phase === player.id)}
               inhabitants={0}
               available={bank.buildingsLeft[building.type]}
             />)}

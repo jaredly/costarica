@@ -5,11 +5,13 @@ import {css, StyleSheet} from 'aphrodite'
 
 import type {BuildingType} from './server/consts'
 import {buildings} from './server/consts'
+import * as sharedStyles from './styles'
 
 type Props = {
   type: BuildingType,
   inhabitants: number,
-  available: ?number,
+  available?: ?number,
+  cost?: number,
   onTake?: () => void,
   onInhabit?: () => void,
 }
@@ -25,24 +27,13 @@ const makeInhabitants = (spaces, filled) => {
   return res
 }
 
-const fake: any = {}
-const colors = {
-  ...fake,
-  violet: '#fdf',
-  indigo: '#ddf',
-  tobacco: '#fea',
-  coffee: '#ccc',
-  sugar: 'white',
-  corn: '#faf',
-}
-
 const colorForType = type => {
-  if (type === 'smallIndigo') return colors.indigo
-  if (type === 'smallSugar') return colors.sugar
-  return colors[type] || colors.violet
+  if (type === 'smallIndigo') return sharedStyles.colors.indigo
+  if (type === 'smallSugar') return sharedStyles.colors.sugar
+  return sharedStyles.colors[type] || sharedStyles.colors.violet
 }
 
-export default ({type, inhabitants, available, onTake, onInhabit}: Props) => (
+export default ({type, cost, inhabitants, available, onTake, onInhabit}: Props) => (
   <div
     onClick={onTake}
     className={css(styles.container, onTake && styles.clickable)}
@@ -51,7 +42,7 @@ export default ({type, inhabitants, available, onTake, onInhabit}: Props) => (
     <div className={css(styles.top)}>
       <div className={css(styles.vp)}>{buildings[type].col}</div>
       <div className={css(styles.name, onTake && styles.selectableName)}>{type}</div>
-      <div className={css(styles.cost)}>{buildings[type].cost}</div>
+      {cost != null ? <div className={css(styles.cost)}>{cost}</div> : <span />}
     </div>
     <div className={css(styles.bonus)}>
       {buildings[type].bonus}
@@ -117,6 +108,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffa',
     padding: '2px 4px',
     borderRadius: 10,
+    width: 20,
+    alignItems: 'center',
   },
 
   bonus: {
@@ -130,19 +123,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  space: {
-    backgroundColor: 'white',
-    width: 20,
-    height: 20,
-    marginRight: 2,
-    borderRadius: 20,
-    // backgroundColor: 'red',
-    border: '1px solid brown',
-  },
+  space: sharedStyles.space,
 
-  spaceFilled: {
-    backgroundColor: 'brown',
-  },
+  spaceFilled: sharedStyles.spaceFilled,
 
   available: {
     color: '#0a5',

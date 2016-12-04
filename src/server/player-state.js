@@ -14,6 +14,16 @@ module.exports.init = (waitingPlayer: WaitingPlayerT): PlayerT => ({
   dubloons: 0,
   parkedColonists: 0,
   city: [],
+  citySize: 0,
+  goods: {
+    corn: 0,
+    indigo: 0,
+    sugar: 0,
+    coffee: 0,
+    tobacco: 0,
+  },
   island: [], // max 12!
   buildings: {},
+  occupiedLand: {},
+  occupiedBuildings: {},
 })

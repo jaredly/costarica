@@ -7,7 +7,7 @@ export type IslandType = Good | 'quarry'
 type Exact<T> = T & $Shape<T>
 
 export type IslandSquare = Exact<{
-  type: ?IslandType,
+  type: IslandType,
   inhabited: bool,
 }>
 
@@ -22,8 +22,12 @@ export type PlayerT = {
   dubloons: number,
   parkedColonists: number,
   city: Array<BuildingTile>,
+  citySize: number,
+  goods: {[key: Good]: number},
   island: Array<IslandSquare>,
   buildings: {[key: BuildingType]: true},
+  occupiedBuildings: {[key: BuildingType]: number},
+  occupiedLand: {[key: IslandType]: number},
 }
 
 export type WaitingPlayerT = {
@@ -63,12 +67,15 @@ export type TurnStatusT = {
   phase: number,
   currentRole: ?Role,
   turn: number,
+  usedPrivilege: boolean,
+  usedHacienda: boolean,
 }
 
 export type GameT = {
   status: 'playing',
   pid: number,
   players: Array<PlayerT>,
+  messages: Array<string>,
 
   bank: BankT,
   board: BoardT,

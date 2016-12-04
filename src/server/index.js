@@ -4,8 +4,12 @@ import type {StateT, PreGameT} from './types'
 
 const server = require('http').createServer()
 const wss = new (require('ws').Server)({server})
+const fs = require('fs')
 
 const actions = require('./actions')
+
+const args = process.argv
+console.log(args)
 
 let state: StateT = require('./game-state').init()
 state = actions.start({
@@ -13,6 +17,12 @@ state = actions.start({
   status: 'waiting',
   waitingPlayers: [{id: 0, name: 'Jared'}, {id: 1, name: 'Selina'}],
 })
+
+if (args.length > 2) {
+  const saved: any = JSON.parse(fs.readFileSync(args[2], 'utf8'))
+  state = saved
+}
+
 let connectedPlayers = new Set()
 
 let allConnections = new Map()
@@ -90,6 +100,7 @@ wss.on('connection', ws => {
       try {
         state = actions[data.name](playerState, ...data.args)
       } catch (e) {
+        console.log('pre-errored', e)
         return send({type: 'error', value: e.message})
       }
       if (data.name === 'join') {
@@ -112,6 +123,7 @@ wss.on('connection', ws => {
       try {
         state = actions[data.name](playerState, ...data.args)
       } catch (e) {
+        console.log('errored', e)
         return send({type: 'error', value: e.message})
       }
       updateStates()

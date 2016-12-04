@@ -49,20 +49,21 @@ const getPromptText = (game: GameT) => {
 export default class Game extends Component {
   props: {
     game: GameT,
-    actions: {},
+    actions: any,
   }
 
   render() {
     const {actions, game} = this.props
     const myTurn = game.turnStatus.turn === game.pid
     return <div className={css(styles.container)}>
-      {getPromptText(game)}
-      <TurnStatus
+    <div>
+      <Board
         myTurn={myTurn}
-        players={game.players}
-        turnStatus={game.turnStatus}
         actions={actions}
-        pid={game.pid}
+        player={game.players[game.pid]}
+        bank={game.bank}
+        board={game.board}
+        turnStatus={game.turnStatus}
       />
       <Bank
         myTurn={myTurn}
@@ -72,26 +73,48 @@ export default class Game extends Component {
         pid={game.pid}
         bank={game.bank}
       />
-      <Board
+      </div>
+      <div className={css(styles.rightColumn)}>
+      {getPromptText(game)}
+      {myTurn && game.turnStatus.currentRole && game.turnStatus.currentRole !== 'captain' &&
+        <button onClick={() => actions.skipTurn()}>
+          Skip
+        </button>}
+      <TurnStatus
         myTurn={myTurn}
+        players={game.players}
+        turnStatus={game.turnStatus}
         actions={actions}
         pid={game.pid}
-        board={game.board}
-        turnStatus={game.turnStatus}
       />
       {game.players.map(player => (
         <Player
           key={player.id}
           turnStatus={game.turnStatus}
+          bank={game.bank}
           myTurn={myTurn}
           player={player}
           isMe={player.id === game.pid}
           actions={actions}
         />
       ))}
+      <div className={css(styles.messages)}>
+        {game.messages.map((message, i) => <div key={i} className={css(styles.message)}>
+          {message}
+        </div>)}
+      </div>
+      </div>
     </div>
   }
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  
+  rightColumn: {
+    width: 550,
+  },
 })
