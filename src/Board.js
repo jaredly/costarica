@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {BoardT, TurnStatusT, PlayerT, BankT} from './server/types'
+import type {BoardT, TurnStatusT, CargoShipT, PlayerT, BankT} from './server/types'
 import consts from './server/consts'
 import * as sharedStyles from './styles'
 import utils from './server/utils'
@@ -57,8 +57,55 @@ export default class Board extends Component {
         canPick={player.id === turnStatus.turn && player.id === turnStatus.phase && !turnStatus.currentRole}
         onPick={role => actions.pickRole(role)}
       />
+      <div style={{flexDirection: 'row'}}>
+        <TradingHouse tradingHouse={board.tradingHouse} />
+        {board.cargoShips.map((ship, i) => (
+          <Ship ship={ship} key={i} />
+        ))}
+      </div>
     </div>
   }
+}
+
+const TradingHouse = ({tradingHouse}) => {
+  const items = []
+  for (let i=0; i<4; i++) {
+    if (tradingHouse.length < i) {
+      items.push(<div key={i} className={css(styles.tradingGood)} style={{
+        backgroundColor: sharedStyles.colors[tradingHouse[i]]
+      }}/>)
+    } else {
+      items.push(<div key={i} className={css(styles.tradingEmpty)} />)
+    }
+  }
+
+  return <div className={css(styles.tradingHouse)}>
+    Trading House
+    <div className={css(styles.tradingItems)}>
+      {items}
+    </div>
+  </div>
+}
+
+const Ship = ({ship}: {ship: CargoShipT}) => {
+  const items = []
+  for (let i=0; i<ship.size; i++) {
+    if (i < ship.occupied) {
+      items.push(<div key={i} className={css(styles.good)} style={{
+        backgroundColor: sharedStyles.colors[ship.good],
+      }} />)
+    } else {
+      items.push(<div key={i} className={css(styles.good)} style={{
+        backgroundColor: 'transparent',
+      }} />)
+    }
+  }
+  return <div className={css(styles.cargoShip)}>
+    Ship
+    <div className={css(styles.shipCargo)}>
+      {items}
+    </div>
+  </div>
 }
 
 const RolePicker = ({usedRoles, canPick, roleRewards, onPick, currentRole}) => (
@@ -99,6 +146,26 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 
+  tradingItems: {
+    width: 100,
+    height: 100,
+    border: '1px solid #ccc',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+
+  tradingGood: {
+    width: 49,
+    height: 49,
+    border: '1px solid #ccc',
+  },
+
+  tradingEmpty: {
+    width: 49,
+    height: 49,
+    border: '1px solid #ccc',
+  },
+
   plantations: {
     flexDirection: 'row',
   },
@@ -124,6 +191,22 @@ const styles = StyleSheet.create({
     outline: '3px solid #aef',
     borderColor: '#aef',
   },
+
+  cargoShip: {
+    alignItems: 'center',
+    padding: 10,
+    border: '1px solid #ccc',
+    marginLeft: 5,
+  },
+
+  shipCargo: {
+    width: 50,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 5,
+  },
+
+  good: sharedStyles.good,
 
   roleTitle: {
     marginBottom: 10,

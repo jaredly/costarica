@@ -49,12 +49,14 @@ export type BankT = {
   buildingsLeft: {[key: BuildingType]: number},
 }
 
+export type CargoShipT = {
+  good: ?Good,
+  size: number,
+  occupied: number,
+}
+
 export type BoardT = Exact<{
-  cargoShips: Array<{
-    good: ?Good,
-    size: number,
-    occupied: number,
-  }>,
+  cargoShips: Array<CargoShipT>,
   colonistShip: number,
   revealedPlantations: Array<Good>,
   tradingHouse: Array<Good>,

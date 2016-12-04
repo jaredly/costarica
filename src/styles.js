@@ -10,6 +10,15 @@ export const colors = {
   quarry: '#555',
 }
 
+export const good = {
+  width: 20,
+  height: 20,
+  borderRadius: '10px/5px',
+  marginRight: 5,
+  marginBottom: 5,
+  border: '1px solid #555',
+}
+
 export const space = {
   backgroundColor: 'white',
   width: 20,

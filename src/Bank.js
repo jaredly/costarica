@@ -31,12 +31,13 @@ export default class Bank extends Component {
     const {bank, actions, myTurn, turnStatus, player} = this.props
     const amBuilding = myTurn && turnStatus.currentRole === 'builder'
     return <div className={css(styles.container)}>
-      Bank<br/>
-      Quarries: {bank.quarriesLeft}<br/>
-      Goods: some
-      plantations: some
-      colonistsLeft: {bank.colonistsLeft}<br/>
-      buildingsLeft: some
+      <div style={{flexDirection: 'row'}}>
+        quarries: {bank.quarriesLeft} &nbsp;
+        {Object.keys(bank.goods).map((good: any) => (
+          <div key={good}>{good}: {bank.goods[good]} &nbsp;</div>
+        ))}
+        colonists: {bank.colonistsLeft}<br/>
+      </div>
       <div className={css(styles.buildings)}>
         {buildingColumns.map((col, i) => (
           <div key={i} className={css(styles.buildingColumn)}>
@@ -63,7 +64,8 @@ export default class Bank extends Component {
 
 const styles = StyleSheet.create({
   container: {
-
+    marginTop: 10,
+    marginBottom: 10,
   },
 
   buildings: {

@@ -146,8 +146,12 @@ export default class Player extends Component {
       Pick extra good:
       {Object.keys(goodsOwed).map(good => (
         goodsOwed[good] > 0 && this.props.bank.goods[good] > 0 ?
-          <div key={good} onClick={() => this.props.actions.pickExtraGood(good)}>
-            {good}
+          <div
+            key={good}
+            className={css(styles.extraGood)}
+            onClick={() => this.props.actions.pickExtraGood(good)}
+          >
+            <div className={css(styles.good)} /> ({good})
           </div>
         : null
       ))}
@@ -246,6 +250,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#aef'
   },
 
+  extraGood: {
+    flexDirection: 'row',
+  },
+
   goods: {
     margin: '10px 0',
     padding: 10,
@@ -260,11 +268,5 @@ const styles = StyleSheet.create({
   goodsRow: {
     flexDirection: 'row',
   },
-  good: {
-    width: 20,
-    height: 20,
-    borderRadius: '10px/5px',
-    marginRight: 5,
-    border: '1px solid #555',
-  }
+  good: sharedStyles.good,
 })
