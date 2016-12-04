@@ -20,6 +20,7 @@ export type PlayerT = {
   id: number,
   name: string,
   dubloons: number,
+  victoryPoints: number,
   parkedColonists: number,
   city: Array<BuildingTile>,
   citySize: number,

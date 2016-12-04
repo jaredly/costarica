@@ -12,6 +12,7 @@ module.exports.init = (waitingPlayer: WaitingPlayerT): PlayerT => ({
   id: waitingPlayer.id,
   name: waitingPlayer.name,
   dubloons: 0,
+  victoryPoints: 0,
   parkedColonists: 0,
   city: [],
   citySize: 0,

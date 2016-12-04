@@ -306,6 +306,51 @@ exports.settleQuarry = checked(
   }))
 )
 
+exports.shipGood = checked(
+  (game: GameT, good: Good, sid: number) => (
+    checkPhase(game, 'captain') ||
+    game.players[game.pid].goods[good] <= 0 && "You don't have any of that" ||
+    sid >= game.board.cargoShips.length && "That's not a valid ship" ||
+    (game.board.cargoShips[sid].good &&
+     game.board.cargoShips[sid].good !== good) && "That ship has a different good on it" ||
+    game.board.cargoShips.some((ship, i) => i !== sid && ship.good === good) &&
+      "That good already has a ship" ||
+    game.board.cargoShips[sid].occupied === game.board.cargoShips[sid].size &&
+      "That ship is full" ||
+    null
+  ),
+
+  (game: GameT, good: Good, sid: number): GameT => {
+    const ship = game.board.cargoShips[sid]
+    const numGoods = Math.min(
+      game.players[game.pid].goods[good],
+      ship.size - ship.occupied
+    )
+
+    return nextTurn({
+      ...game,
+      players: npl(game.players, game.pid, player => ({
+        ...player,
+        victoryPoints: player.victoryPoints + numGoods +
+          (game.pid === game.turnStatus.phase ? 1 : 0) +
+          (player.occupiedBuildings.harbor ? 1 : 0),
+        goods: {
+          ...player.goods,
+          [good]: player.goods[good] - numGoods,
+        },
+      })),
+      board: {
+        ...game.board,
+        cargoShips: npl(game.board.cargoShips, sid, ship => ({
+          ...ship,
+          occupied: ship.occupied + numGoods,
+          good,
+        })),
+      },
+    })
+  }
+)
+
 exports.settleRandom = checked(
   (game: GameT): ?string => (
     checkPhase(game, 'settler') ||
