@@ -3,7 +3,7 @@
 import React, {Component} from 'react'
 import {css, StyleSheet} from 'aphrodite'
 
-import type {PlayerT, BankT, TurnStatusT, BuildingTile, IslandSquare} from './server/types'
+import type {PlayerT, BankT, BoardT, TurnStatusT, BuildingTile, IslandSquare, CargoShipT} from './server/types'
 import type {Good} from './server/consts'
 
 import * as sharedStyles from './styles'
@@ -15,6 +15,7 @@ import PileOfCoins from './PileOfCoins'
 
 type Props = {
   player: PlayerT,
+  board: BoardT,
   isMe: boolean,
   myTurn: boolean,
   actions: any,
@@ -159,10 +160,11 @@ export default class Player extends Component {
   }
 
   render() {
-    const {player, isMe, myTurn, actions, turnStatus} = this.props
+    const {player, board, isMe, myTurn, actions, turnStatus} = this.props
     const {tmpColonistAllocations} = this.state
     const pickingExtraGood = isMe && myTurn &&
       turnStatus.phase === player.id && turnStatus.currentRole === 'craftsman'
+    const isShipping = turnStatus.currentRole === 'captain' && isMe && myTurn
     // TODO playerisland, playercity
     return <div className={css(styles.container)}>
       <div className={css(isMe && styles.itMe)}>
@@ -172,11 +174,12 @@ export default class Player extends Component {
         {player.dubloons ?
           <PileOfCoins count={player.dubloons} /> :
           'No dubloons'}
+        {isMe && <span>
+          {player.victoryPoints|0} victory points
+        </span>}
       </div>
       <div className={css(styles.goods)}>
-        {Object.keys(player.goods).map((good: any) => (
-          player.goods[good] ? renderGood(good, player.goods[good]) : null
-        ))}
+        {renderGoods(player.goods, board.cargoShips, isShipping && actions.shipGood)}
       </div>
       {pickingExtraGood &&
         this.renderPickingExtraGood()}
@@ -207,6 +210,69 @@ export default class Player extends Component {
       </div>
     </div>
   }
+}
+
+const renderGoods = (goods: {[key: Good]: number}, ships: Array<CargoShipT>, onShip) => {
+  // if there's an empty ship, anything goes but taken goods
+  // if there's no empty ship, you can only ship what's there
+  const shipsByGood = {}
+  const emptyShips = []
+  if (onShip) {
+    ships.forEach((ship: CargoShipT, i) => {
+      if (!ship.good) {
+        emptyShips.push(i) // TODO have the capacity?
+        return
+      }
+      if (ship.occupied < ship.size) {
+        shipsByGood[ship.good] = i
+      } else {
+        shipsByGood[ship.good] = false
+      }
+    })
+  }
+
+  const noGoods = !Object.keys(goods).some((key: any) => goods[key] > 0)
+
+  if (noGoods) {
+    return <div>No goods</div>
+  }
+
+  return (
+    Object.keys(goods).map((good: any) => (
+      goods[good] ?
+      <div key={good} className={css(styles.goodLine)}>
+        {renderGood(good, goods[good])}
+        {onShip && shipsForGood(shipsByGood, emptyShips, good, onShip)}
+      </div>
+      : null
+    ))
+  )
+}
+
+const shipsForGood = (shipsByGood, emptyShips, good, onShip) => {
+  if (shipsByGood[good] === false) return // ship full
+  if (shipsByGood[good] != null) {
+    return <div className={css(styles.ships)}>
+      <button
+        className={css(styles.shipButton)}
+        onClick={() => onShip(good, shipsByGood[good])}
+      >
+        Ship on {shipsByGood[good] + 1}
+      </button>
+    </div>
+  }
+  if (!emptyShips.length) return // no empty ships
+  return <div className={css(styles.ships)}>
+    {emptyShips.map(i => (
+      <button
+        key={i}
+        className={css(styles.shipButton)}
+        onClick={() => onShip(good, i)}
+      >
+        Ship on {i + 1}
+      </button>
+    ))}
+  </div>
 }
 
 const renderGood = (good, num) => {

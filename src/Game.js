@@ -87,14 +87,25 @@ export default class Game extends Component {
         actions={actions}
         pid={game.pid}
       />
-      {game.players.map(player => (
+      <Player
+        key={game.pid}
+        board={game.board}
+        turnStatus={game.turnStatus}
+        bank={game.bank}
+        myTurn={myTurn}
+        player={game.players[game.pid]}
+        isMe={true}
+        actions={actions}
+      />
+      {game.players.filter(i => i.id !== game.pid).map(player => (
         <Player
           key={player.id}
+          board={game.board}
           turnStatus={game.turnStatus}
           bank={game.bank}
           myTurn={myTurn}
           player={player}
-          isMe={player.id === game.pid}
+          isMe={false}
           actions={actions}
         />
       ))}
@@ -113,7 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  
+
   rightColumn: {
     width: 550,
   },

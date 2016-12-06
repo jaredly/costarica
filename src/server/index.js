@@ -43,6 +43,7 @@ const deepMerge: any = (a, b) => {
 }
 
 const updateStates = () => {
+  fs.writeFileSync("./saved.game", JSON.stringify(state, null, 2))
   allConnections.forEach((pid, ws) => {
     console.log('sending state', pid)
     ws.send(JSON.stringify({
@@ -55,6 +56,74 @@ const updateStates = () => {
   })
 }
 
+const handleInit = (state, ws) => {
+  let pid
+  if (state.status === 'playing') {
+    for (let i=0; i<state.players.length; i++) {
+      if (!connectedPlayers.has(i)) {
+        pid = i
+        console.log('resume')
+        allConnections.set(ws, i)
+        connectedPlayers.add(i)
+        break
+      }
+    }
+  } else if (state.status === 'waiting') {
+    for (let i=0; i<state.waitingPlayers.length; i++) {
+      if (!connectedPlayers.has(i)) {
+        pid = i
+        console.log('resume')
+        allConnections.set(ws, i)
+        connectedPlayers.add(i)
+        break
+      }
+    }
+  }
+  // TODO if we're missing a player, try to reconnect
+  return {pid, message: {type: 'state', value: {...state, pid}}}
+}
+
+const handlePreAction = (playerState, name, args): {state?: StateT, message?: any} => {
+  if (playerState.status !== 'waiting') {
+    return {message: {type: 'error', value: "Can't use a pre-action on a running game"}}
+  }
+  if (!actions[name]) {
+    return {message: {type: 'errpr', value: 'Unknown action type: ' + name}}
+  }
+  const error = actions[name].check(playerState, ...args)
+  if (error) {
+    return {message: {type: 'error', value: "Precondition failed: " + error}}
+  }
+  try {
+    state = actions[name](playerState, ...args)
+  } catch (e) {
+    console.log('pre-errored', e)
+    return {message: {type: 'error', value: e.message}}
+  }
+  return {state}
+}
+
+const handleAction = (playerState, name, args): {state?: StateT, message?: any} => {
+  if (playerState.status !== 'playing') {
+    return {message: {type: 'error', value: "Game is not in play"}}
+  }
+  console.log('action', name, args)
+  if (!actions[name]) {
+    return {message: {type: 'error', value: 'Unknown action type: ' + name}}
+  }
+  const error = actions[name].check(playerState, ...args)
+  if (error) {
+    return {message: {type: 'error', value: "Precondition failed: " + error}}
+  }
+  try {
+    state = actions[name](playerState, ...args)
+  } catch (e) {
+    console.log('errored', e)
+    return {message: {type: 'error', value: e.message}}
+  }
+  return {state}
+}
+
 wss.on('connection', ws => {
   console.log('connected')
   let pid = -1
@@ -65,68 +134,34 @@ wss.on('connection', ws => {
     const data = JSON.parse(evt)
     if (data.type === 'init') {
       console.log('init')
-      if (state.status === 'playing') {
-        for (let i=0; i<state.players.length; i++) {
-          if (!connectedPlayers.has(i)) {
-            pid = i
-            console.log('resume')
-            allConnections.set(ws, i)
-            connectedPlayers.add(i)
-            break
-          }
-        }
-      } else if (state.status === 'waiting') {
-        for (let i=0; i<state.waitingPlayers.length; i++) {
-          if (!connectedPlayers.has(i)) {
-            pid = i
-            console.log('resume')
-            allConnections.set(ws, i)
-            connectedPlayers.add(i)
-            break
-          }
-        }
-      }
-      // TODO if we're missing a player, try to reconnect
-      send({type: 'state', value: {...state, pid}})
+      const {pid: npid, message} = handleInit(state, ws)
+      pid = npid
+      send(message)
     } else if (data.type === 'pre-action') {
-      if (state.status !== 'waiting') {
-        return send({type: 'error', value: "Can't use a pre-action on a running game"})
+      const {state: newState, message} = handlePreAction({...state, pid}, data.name, data.args)
+      if (message) {
+        send(message)
       }
-      const playerState = {...state, pid}
-      const error = actions[data.name].check(playerState, ...data.args)
-      if (error) {
-        return send({type: 'error', value: "Precondition failed: " + error})
+      if (newState) {
+        if (data.name === 'join' && newState.status === "waiting") {
+          pid = newState.waitingPlayers.length - 1
+          allConnections.set(ws, pid)
+          connectedPlayers.add(pid)
+        }
+        state = newState
+        updateStates()
       }
-      try {
-        state = actions[data.name](playerState, ...data.args)
-      } catch (e) {
-        console.log('pre-errored', e)
-        return send({type: 'error', value: e.message})
-      }
-      if (data.name === 'join') {
-        pid = state.waitingPlayers.length - 1
-        allConnections.set(ws, pid)
-        connectedPlayers.add(pid)
-      }
-      updateStates()
-
     } else if (data.type === 'action') {
-      if (state.status !== 'playing') {
-        return send({type: 'error', value: "Game is not in play"})
+      const {state: newState, message} = handleAction({...state, pid}, data.name, data.args)
+      if (message) {
+        console.log('sending', message)
+        send(message)
       }
-      console.log('action', data.name, data.args)
-      const playerState = {...state, pid}
-      const error = actions[data.name].check(playerState, ...data.args)
-      if (error) {
-        return send({type: 'error', value: "Precondition failed: " + error})
+      if (newState) {
+        console.log('update state')
+        state = newState
+        updateStates()
       }
-      try {
-        state = actions[data.name](playerState, ...data.args)
-      } catch (e) {
-        console.log('errored', e)
-        return send({type: 'error', value: e.message})
-      }
-      updateStates()
     } else if (data.type === 'hack') {
       state = data.value
       updateStates()

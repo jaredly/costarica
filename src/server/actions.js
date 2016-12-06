@@ -10,6 +10,7 @@ const boardState = require('./board')
 const utils = require('./utils')
 const nextTurn = require('./nextTurn')
 const checkState = require('./check')
+const shipGood = require('./shipGood')
 
 exports.init = (): StateT => ({pid: -1, status: 'waiting', waitingPlayers: []})
 
@@ -158,8 +159,6 @@ exports.skipTurn = checked(
     null
   ),
   (game: GameT): GameT => {
-    // TODO maybe make sure we're not captaining?
-    // if (board.currentRole ===
     return nextTurn(game)
   }
 )
@@ -306,47 +305,46 @@ exports.settleQuarry = checked(
   }))
 )
 
+const warehouseSlots = player => {
+  return (player.occupiedBuildings.smallWarehouse ? 1 : 0) +
+    (player.occupiedBuildings.largeWarehouse ? 2 : 0)
+}
+
 exports.shipGood = checked(
-  (game: GameT, good: Good, sid: number) => (
+  (game: GameT, good: ?Good, sid: ?number, keep1: ?Good, keepWarehouse: Array<Good>) => (
     checkPhase(game, 'captain') ||
-    game.players[game.pid].goods[good] <= 0 && "You don't have any of that" ||
-    sid >= game.board.cargoShips.length && "That's not a valid ship" ||
-    (game.board.cargoShips[sid].good &&
-     game.board.cargoShips[sid].good !== good) && "That ship has a different good on it" ||
-    game.board.cargoShips.some((ship, i) => i !== sid && ship.good === good) &&
-      "That good already has a ship" ||
-    game.board.cargoShips[sid].occupied === game.board.cargoShips[sid].size &&
-      "That ship is full" ||
-    null
+    (good && sid) &&
+      (game.players[game.pid].goods[good] <= 0 && "You don't have any of that" ||
+        sid >= game.board.cargoShips.length && "That's not a valid ship" ||
+        (game.board.cargoShips[sid].good &&
+         game.board.cargoShips[sid].good !== good) && "That ship has a different good on it" ||
+        game.board.cargoShips.some((ship, i) => i !== sid && ship.good === good) &&
+          "That good already has a ship" ||
+        game.board.cargoShips[sid].occupied === game.board.cargoShips[sid].size &&
+          "That ship is full") ||
+    keep1 && game.players[game.pid].goods[keep1] <= 0 && "You don't have any of that to keep" ||
+    keepWarehouse.length && keepWarehouse.length > warehouseSlots(game.players[game.pid]) ||
+   null
   ),
 
-  (game: GameT, good: Good, sid: number): GameT => {
-    const ship = game.board.cargoShips[sid]
-    const numGoods = Math.min(
-      game.players[game.pid].goods[good],
-      ship.size - ship.occupied
-    )
+  (game: GameT, good: ?Good, sid: ?number, keep1: ?Good, keepWarehouse: Array<Good>): GameT => {
+    if (good && sid) {
+      game = shipGood(game, good, sid)
+    }
+    const goods = {}
+    if (keep1) {
+      goods[keep1] = 1
+    }
+    keepWarehouse.forEach(good => {
+      goods[good] = game.players[game.pid].goods[good]
+    })
 
     return nextTurn({
       ...game,
       players: npl(game.players, game.pid, player => ({
         ...player,
-        victoryPoints: player.victoryPoints + numGoods +
-          (game.pid === game.turnStatus.phase ? 1 : 0) +
-          (player.occupiedBuildings.harbor ? 1 : 0),
-        goods: {
-          ...player.goods,
-          [good]: player.goods[good] - numGoods,
-        },
-      })),
-      board: {
-        ...game.board,
-        cargoShips: npl(game.board.cargoShips, sid, ship => ({
-          ...ship,
-          occupied: ship.occupied + numGoods,
-          good,
-        })),
-      },
+        goods,
+      }))
     })
   }
 )
