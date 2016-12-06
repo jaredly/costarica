@@ -70,7 +70,7 @@ export default class Board extends Component {
 const TradingHouse = ({tradingHouse}) => {
   const items = []
   for (let i=0; i<4; i++) {
-    if (tradingHouse.length < i) {
+    if (tradingHouse.length > i) {
       items.push(<div key={i} className={css(styles.tradingGood)} style={{
         backgroundColor: sharedStyles.colors[tradingHouse[i]]
       }}/>)

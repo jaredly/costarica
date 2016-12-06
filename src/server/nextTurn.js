@@ -20,10 +20,11 @@ const cantBuildAnything = (player, isBuilder) => {
 
 const autoCaptain = (game: GameT): GameT => {
   // if no goods, skip
-  const player = game.players[game.pid]
+  const player = game.players[game.turnStatus.turn]
   const goodsList = Object.keys(player.goods)
     .filter((good: any) => player.goods[good] > 0)
   // const noGoods = !Object.keys(player.goods).some(good => player.goods[good] > 0)
+  console.log(player.name, goodsList)
   if (goodsList.length === 0) {
     return module.exports(game)
   }
@@ -46,26 +47,30 @@ const autoCaptain = (game: GameT): GameT => {
 
   if (goodsList.length === 1) {
     const theGood: any = goodsList[0]
-    if (shipsByGood[theGood] === false ||
+    if (
+      shipsByGood[theGood] === false ||
       (shipsByGood[theGood] == null && emptyShips.length === 0)
     ) {
-      // can't ship it
-      return {
+      // can't ship it, and there's only one good to potentially keep
+      return module.exports({
         ...game,
-        players: npl(game.players, game.pid, player => ({
+        players: npl(game.players, game.turnStatus.turn, player => ({
           ...player,
           goods: {
             [theGood]: numWarehouses > 0 ? player.goods[theGood] : 1,
           }
         }))
-      }
+      })
     }
+
     if (shipsByGood[theGood] != null) {
+      console.log('auto captain', theGood)
       return module.exports(shipGood(game, theGood, shipsByGood[theGood]))
     }
 
     // then we know what to keep, anyway.
     if (emptyShips.length === 1) {
+      console.log('auto captain empty', theGood, emptyShips)
       return module.exports(shipGood(game, theGood, emptyShips[0]))
     }
   }
@@ -75,9 +80,11 @@ const autoCaptain = (game: GameT): GameT => {
     (shipsByGood[good] != null || emptyShips.length > 1)
   ))
   if (canShip.length === 0 && numWarehouses >= goodsList.length) {
+    console.log('you get to keep your stuff')
     // no changes, b/c you can keep all your goods
     return module.exports(game)
   }
+  console.log('gotta pick')
   return game
 }
 
@@ -128,9 +135,9 @@ const maybeSkip = (game: GameT): GameT => {
 }
 
 const nextRound = (game: GameT): GameT => {
-  console.log('next round')
   // TODO check completion criteria
   const governor = (game.turnStatus.governor + 1) % game.players.length
+  console.log(`[[ next round ${game.players[governor].name} ]]`)
   const rewards = {...game.board.roleRewards}
   Object.keys(consts.roles).forEach(role => {
     if (game.board.usedRoles.indexOf(role) === -1) {
@@ -172,24 +179,44 @@ const finishPhase = {
   craftsman: noop,
   trader: (game: GameT): GameT => {
     if (game.board.tradingHouse.length === 4) {
-      return {...game, board: {...game.board, tradingHouse: []}}
+      const goods = {...game.bank.goods}
+      game.board.tradingHouse.forEach(good => goods[good] += 1)
+      return {
+        ...game,
+        bank: {
+          ...game.bank,
+          goods,
+        },
+        board: {
+          ...game.board,
+          tradingHouse: []
+        }
+      }
     }
     return game
   },
-  captain: (game: GameT): GameT => ({
-    ...game,
-    board: {
-      ...game.board,
-      cargoShips: spy('new ships', game.board.cargoShips.map(
-        ship => ship.size === ship.occupied ?
-          {...ship, good: null, occupied: 0} : ship
-      )),
-    },
-  })
+  captain: (game: GameT): GameT => {
+    const goods = {...game.bank.goods}
+    game.board.cargoShips.forEach(ship => {
+      if (ship.size === ship.occupied && ship.good) {
+        goods[ship.good] += ship.size
+      }
+    })
+    return {
+      ...game,
+      boank: {...game.bank, goods},
+      board: {
+        ...game.board,
+        cargoShips: spy('new ships', game.board.cargoShips.map(
+          ship => ship.size === ship.occupied ?
+            {...ship, good: null, occupied: 0} : ship
+        )),
+      },
+    }
+  }
 }
 
 const nextPhase = (game: GameT): GameT => {
-  console.log('next phase')
   game = {...game, turnStatus: {...game.turnStatus}}
   // TODO allow multiple rounds phases?
   game.turnStatus.phase = (game.turnStatus.phase + 1) % game.players.length
@@ -200,6 +227,7 @@ const nextPhase = (game: GameT): GameT => {
   if (game.turnStatus.phase === game.turnStatus.governor) {
     return nextRound(finishPhase[role](game))
   }
+  console.log(`[[ next phase ${game.players[game.turnStatus.phase].name} ]]`)
   console.log(',pvomg tp', game.turnStatus)
   return finishPhase[role]({
     ...game,
@@ -213,7 +241,7 @@ const nextPhase = (game: GameT): GameT => {
 }
 
 module.exports = (game: GameT): GameT => {
-  console.log('skipping', game.turnStatus)
+  // console.log('skipping', game.turnStatus)
   game = {
     ...game,
     turnStatus: {
@@ -227,6 +255,7 @@ module.exports = (game: GameT): GameT => {
     console.log('nexted phase', gm.turnStatus)
     return gm
   }
+  console.log(`[[ next turn ${game.players[game.turnStatus.turn].name} ]]`)
   return maybeSkip({
     ...game,
     messages: game.messages.concat([

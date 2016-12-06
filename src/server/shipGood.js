@@ -11,15 +11,16 @@ const npl = <T>(items: Array<T>, index, mod: (arg: T) => T): Array<T> => {
 const shipGood = module.exports = (game: GameT, good: Good, sid: number): GameT => {
   const ship = game.board.cargoShips[sid]
   const numGoods = Math.min(
-    game.players[game.pid].goods[good],
+    game.players[game.turnStatus.turn].goods[good],
     ship.size - ship.occupied
   )
+  console.log('shipping', good, numGoods, game.turnStatus.turn)
   return {
     ...game,
-    players: npl(game.players, game.pid, player => ({
+    players: npl(game.players, game.turnStatus.turn, player => ({
       ...player,
       victoryPoints: player.victoryPoints|0 + numGoods +
-        (game.pid === game.turnStatus.phase ? 1 : 0) +
+        (game.turnStatus.turn === game.turnStatus.phase ? 1 : 0) +
         (player.occupiedBuildings.harbor ? 1 : 0),
       goods: {
         ...player.goods,

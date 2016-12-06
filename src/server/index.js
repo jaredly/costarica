@@ -9,7 +9,7 @@ const fs = require('fs')
 const actions = require('./actions')
 
 const args = process.argv
-console.log(args)
+// console.log(args)
 
 let state: StateT = require('./game-state').init()
 state = actions.start({
@@ -45,7 +45,7 @@ const deepMerge: any = (a, b) => {
 const updateStates = () => {
   fs.writeFileSync("./saved.game", JSON.stringify(state, null, 2))
   allConnections.forEach((pid, ws) => {
-    console.log('sending state', pid)
+    // console.log('sending state', pid)
     ws.send(JSON.stringify({
       type: 'state',
       value: {
@@ -125,7 +125,7 @@ const handleAction = (playerState, name, args): {state?: StateT, message?: any} 
 }
 
 wss.on('connection', ws => {
-  console.log('connected')
+  // console.log('connected')
   let pid = -1
   allConnections.set(ws, pid)
   const send = data => ws.send(JSON.stringify(data))
@@ -133,7 +133,7 @@ wss.on('connection', ws => {
   ws.on('message', evt => {
     const data = JSON.parse(evt)
     if (data.type === 'init') {
-      console.log('init')
+      // console.log('init')
       const {pid: npid, message} = handleInit(state, ws)
       pid = npid
       send(message)
@@ -154,11 +154,11 @@ wss.on('connection', ws => {
     } else if (data.type === 'action') {
       const {state: newState, message} = handleAction({...state, pid}, data.name, data.args)
       if (message) {
-        console.log('sending', message)
+        // console.log('sending', message)
         send(message)
       }
       if (newState) {
-        console.log('update state')
+        // console.log('update state')
         state = newState
         updateStates()
       }

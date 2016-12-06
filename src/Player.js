@@ -13,6 +13,8 @@ import BuildingTileEl from './BuildingTile'
 import PlantationTile from './PlantationTile'
 import PileOfCoins from './PileOfCoins'
 
+import PlayerGoods from './PlayerGoods'
+
 type Props = {
   player: PlayerT,
   board: BoardT,
@@ -165,6 +167,7 @@ export default class Player extends Component {
     const pickingExtraGood = isMe && myTurn &&
       turnStatus.phase === player.id && turnStatus.currentRole === 'craftsman'
     const isShipping = turnStatus.currentRole === 'captain' && isMe && myTurn
+    const isTrading = isMe && myTurn && turnStatus.currentRole === 'trader'
     // TODO playerisland, playercity
     return <div className={css(styles.container)}>
       <div className={css(isMe && styles.itMe)}>
@@ -179,7 +182,12 @@ export default class Player extends Component {
         </span>}
       </div>
       <div className={css(styles.goods)}>
-        {renderGoods(player.goods, board.cargoShips, isShipping && actions.shipGood)}
+        <PlayerGoods
+          player={player}
+          cargoShips={board.cargoShips}
+          onShip={isShipping ? actions.shipGood : null}
+          onTrade={isTrading ? actions.tradeGood : null}
+        />
       </div>
       {pickingExtraGood &&
         this.renderPickingExtraGood()}
@@ -210,83 +218,6 @@ export default class Player extends Component {
       </div>
     </div>
   }
-}
-
-const renderGoods = (goods: {[key: Good]: number}, ships: Array<CargoShipT>, onShip) => {
-  // if there's an empty ship, anything goes but taken goods
-  // if there's no empty ship, you can only ship what's there
-  const shipsByGood = {}
-  const emptyShips = []
-  if (onShip) {
-    ships.forEach((ship: CargoShipT, i) => {
-      if (!ship.good) {
-        emptyShips.push(i) // TODO have the capacity?
-        return
-      }
-      if (ship.occupied < ship.size) {
-        shipsByGood[ship.good] = i
-      } else {
-        shipsByGood[ship.good] = false
-      }
-    })
-  }
-
-  const noGoods = !Object.keys(goods).some((key: any) => goods[key] > 0)
-
-  if (noGoods) {
-    return <div>No goods</div>
-  }
-
-  return (
-    Object.keys(goods).map((good: any) => (
-      goods[good] ?
-      <div key={good} className={css(styles.goodLine)}>
-        {renderGood(good, goods[good])}
-        {onShip && shipsForGood(shipsByGood, emptyShips, good, onShip)}
-      </div>
-      : null
-    ))
-  )
-}
-
-const shipsForGood = (shipsByGood, emptyShips, good, onShip) => {
-  if (shipsByGood[good] === false) return // ship full
-  if (shipsByGood[good] != null) {
-    return <div className={css(styles.ships)}>
-      <button
-        className={css(styles.shipButton)}
-        onClick={() => onShip(good, shipsByGood[good])}
-      >
-        Ship on {shipsByGood[good] + 1}
-      </button>
-    </div>
-  }
-  if (!emptyShips.length) return // no empty ships
-  return <div className={css(styles.ships)}>
-    {emptyShips.map(i => (
-      <button
-        key={i}
-        className={css(styles.shipButton)}
-        onClick={() => onShip(good, i)}
-      >
-        Ship on {i + 1}
-      </button>
-    ))}
-  </div>
-}
-
-const renderGood = (good, num) => {
-  const res = []
-  for (let i=0; i<num; i++) {
-    res.push(<div
-      key={i}
-      className={css(styles.good)}
-      style={{backgroundColor: sharedStyles.colors[good]}}
-    />)
-  }
-  return <div key={good} className={css(styles.goodsRow)}>
-    {res} ({good})
-  </div>
 }
 
 class PlayerBuildings extends Component {

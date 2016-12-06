@@ -11,6 +11,7 @@ const utils = require('./utils')
 const nextTurn = require('./nextTurn')
 const checkState = require('./check')
 const shipGood = require('./shipGood')
+const npl = require('./npl')
 
 exports.init = (): StateT => ({pid: -1, status: 'waiting', waitingPlayers: []})
 
@@ -21,16 +22,16 @@ type Checker<A, B, C, D, R> =
   Same<(a: A, b: B) => ?string, (a: A, b: B) => R>
 */
 
-const npl = <T>(items: Array<T>, index, mod: (arg: T) => T): Array<T> => {
-  const np = items.slice()
-  np[index] = mod(np[index])
-  return np
-}
-
 const checked = <T, R>(checker: T, action: any): R => {
   action.check = checker
   return action
 }
+
+const checkPhase = (game: GameT, phase: Role): ?string => (
+  game.turnStatus.turn !== game.pid && 'Not your turn' ||
+  game.turnStatus.currentRole !== phase && 'Wrong phase, expected ' + phase ||
+  null
+)
 
 exports.join = checked(
   (state: StateT, name: string): ?string => {
@@ -151,6 +152,37 @@ exports.pickRole = checked(
   }
 )
 
+exports.tradeGood = checked(
+  (game: GameT, good: Good): ?string => (
+    checkPhase(game, 'trader') ||
+    game.players[game.pid].goods[good] <= 0 && "You don't have any to trade" ||
+    game.board.tradingHouse.some(item => item === good) &&
+    !game.players[game.pid].occupiedBuildings.office && "That good is already being sold" ||
+    game.board.tradingHouse.length === 4 && "Trading house is full" ||
+    null
+  ),
+
+  (game: GameT, good: Good): GameT => nextTurn({
+    ...game,
+    board: {
+      ...game.board,
+      tradingHouse: game.board.tradingHouse.concat([good]),
+    },
+    players: npl(game.players, game.pid, player => ({
+      ...player,
+      dubloons: player.dubloons +
+        consts.goods[good].value +
+        (game.turnStatus.turn === game.turnStatus.phase ? 1 : 0) +
+        (player.occupiedBuildings.smallMarket ? 1 : 0) +
+        (player.occupiedBuildings.largeMarket ? 2 : 0),
+      goods: {
+        ...player.goods,
+        [good]: player.goods[good] - 1,
+      },
+    }))
+  })
+)
+
 exports.skipTurn = checked(
   (game: GameT): ?string => (
     game.pid !== game.turnStatus.turn && "You can't skip someone else's turn" ||
@@ -161,12 +193,6 @@ exports.skipTurn = checked(
   (game: GameT): GameT => {
     return nextTurn(game)
   }
-)
-
-const checkPhase = (game: GameT, phase: Role): ?string => (
-  game.turnStatus.turn !== game.pid && 'Not your turn' ||
-  game.turnStatus.currentRole !== phase && 'Wrong phase, expected ' + phase ||
-  null
 )
 
 type Allocations = {parkedColonists: number, city: Array<number>, island: Array<boolean>}
@@ -328,7 +354,7 @@ exports.shipGood = checked(
   ),
 
   (game: GameT, good: ?Good, sid: ?number, keep1: ?Good, keepWarehouse: Array<Good>): GameT => {
-    if (good && sid) {
+    if (good && sid != null) {
       game = shipGood(game, good, sid)
     }
     const goods = {}
