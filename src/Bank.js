@@ -6,6 +6,7 @@ import {css, StyleSheet} from 'aphrodite'
 import type {BankT, TurnStatusT, PlayerT} from './server/types'
 import consts from './server/consts'
 import utils from './server/utils'
+import * as sharedStyles from './styles'
 
 import BuildingTile from './BuildingTile'
 
@@ -33,10 +34,14 @@ export default class Bank extends Component {
     return <div className={css(styles.container)}>
       <div style={{flexDirection: 'row'}}>
         quarries: {bank.quarriesLeft} &nbsp;
-        {Object.keys(bank.goods).map((good: any) => (
-          <div key={good}>{good}: {bank.goods[good]} &nbsp;</div>
-        ))}
         colonists: {bank.colonistsLeft}<br/>
+      </div>
+      <div className={css(styles.goods)}>
+      {Object.keys(bank.goods).map((good: any) => (
+        bank.goods[good] ?
+          renderGood(good, bank.goods[good])
+          : 'No ' + good
+      ))}
       </div>
       <div className={css(styles.buildings)}>
         {buildingColumns.map((col, i) => (
@@ -62,10 +67,37 @@ export default class Bank extends Component {
   }
 }
 
+const renderGood = (good, count) => {
+  const res = []
+  for (let i=0; i<count; i++) {
+    res.push(<div
+      key={i}
+      style={{backgroundColor: sharedStyles.colors[good]}}
+      className={css(styles.good)}
+    />)
+  }
+  return <div className={css(styles.goodRow)}>
+    <div className={css(styles.goodCount)}>
+      {count}
+    </div>
+    {res}
+  </div>
+}
+
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     marginBottom: 10,
+  },
+
+  good: sharedStyles.good,
+
+  goodCount: {
+    marginRight: 10,
+  },
+
+  goodRow: {
+    flexDirection: 'row',
   },
 
   buildings: {

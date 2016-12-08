@@ -19,7 +19,7 @@ const shipGood = module.exports = (game: GameT, good: Good, sid: number): GameT 
     ...game,
     players: npl(game.players, game.turnStatus.turn, player => ({
       ...player,
-      victoryPoints: player.victoryPoints|0 + numGoods +
+      victoryPoints: (player.victoryPoints|0) + numGoods +
         (game.turnStatus.turn === game.turnStatus.phase ? 1 : 0) +
         (player.occupiedBuildings.harbor ? 1 : 0),
       goods: {

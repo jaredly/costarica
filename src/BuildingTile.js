@@ -42,7 +42,9 @@ export default ({type, cost, inhabitants, available, onTake, onInhabit}: Props) 
     <div className={css(styles.top)}>
       <div className={css(styles.vp)}>{buildings[type].col}</div>
       <div className={css(styles.name, onTake && styles.selectableName)}>{type}</div>
-      {cost != null ? <div className={css(styles.cost)}>{cost}</div> : <span />}
+      {(cost != null && buildings[type].cost !== cost) ? `(${buildings[type].cost}) ` : null}
+      {cost != null ? <div className={css(styles.cost)}>
+      {cost}</div> : <span />}
     </div>
     <div className={css(styles.bonus)}>
       {buildings[type].bonus}

@@ -204,7 +204,7 @@ const finishPhase = {
     })
     return {
       ...game,
-      boank: {...game.bank, goods},
+      bank: {...game.bank, goods},
       board: {
         ...game.board,
         cargoShips: spy('new ships', game.board.cargoShips.map(

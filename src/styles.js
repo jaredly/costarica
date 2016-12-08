@@ -4,7 +4,7 @@ export const colors = {
   indigo: '#ddf',
   tobacco: '#d0a563',
   coffee: '#ccc',
-  sugar: 'white',
+  sugar: '#eff',
   corn: '#fff900',
   random: '#afa',
   quarry: '#555',

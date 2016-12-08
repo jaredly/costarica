@@ -185,6 +185,7 @@ export default class Player extends Component {
         <PlayerGoods
           player={player}
           cargoShips={board.cargoShips}
+          tradingHouse={board.tradingHouse}
           onShip={isShipping ? actions.shipGood : null}
           onTrade={isTrading ? actions.tradeGood : null}
         />

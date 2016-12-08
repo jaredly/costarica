@@ -84,14 +84,21 @@ const givePlayersGoods = (game: GameT) => {
     let ri = (i + game.turnStatus.phase) % players.length
     const goods = {...players[ri].goods}
     const goodsOwed = utils.goodsOwed(players[ri])
+    let kindsGot = 0
     Object.keys(goodsOwed).forEach(good => {
       const realized = Math.min(goodsOwed[good], bank.goods[good])
+      if (realized > 0) {
+        kindsGot += 1
+      }
       bank.goods[good] -= realized
-      goods[good] += realized
+      goods[good] = goods[good]|0 + realized
     })
     players[ri] = {
       ...players[ri],
       goods,
+    }
+    if (players[ri].occupiedBuildings.factory) {
+      players[ri].dubloons += [0, 0, 1, 2, 3, 5][kindsGot]
     }
     console.log('player goods', ri, players[ri].goods, goods)
   }
@@ -110,6 +117,10 @@ const startPhase = {
       ...player,
       parkedColonists: player.parkedColonists + (player.id === game.turnStatus.phase ? 2 : 1),
     })),
+    bank: {
+      ...game.bank,
+      colonistsLeft: game.bank.colonistsLeft - game.players.length - 1,
+    },
   }),
   craftsman: givePlayersGoods,
   trader: noop,

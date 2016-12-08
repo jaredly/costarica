@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import makeActions from './actions'
 
-const ws = new WebSocket('ws://localhost:7810')
+const ws = new WebSocket('ws://' + window.location.hostname + ':7810')
 
 console.log('a')
 ws.onopen = () => {

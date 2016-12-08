@@ -14,10 +14,11 @@ type MainProps = {
   player: PlayerT,
   onShip: ?(good: ?Good, sid: ?number, keep1: ?Good, warehouseGoods: Array<Good>) => void,
   onTrade: ?(good: Good) => void,
+  tradingHouse: Array<Good>,
   cargoShips: Array<CargoShipT>,
 }
 
-export default ({player, onShip, onTrade, cargoShips}: MainProps) => {
+export default ({player, onShip, onTrade, cargoShips, tradingHouse}: MainProps) => {
   if (onShip) {
     console.log('render player', player.goods)
     return <CaptainsGoods
@@ -31,18 +32,24 @@ export default ({player, onShip, onTrade, cargoShips}: MainProps) => {
     />
   }
 
+  const goods = Object.keys(player.goods).map((good: any) => (
+    player.goods[good] ?
+    <div key={good} className={css(styles.goodRow)}>
+      {renderGood(good, player.goods[good])}
+      {(onTrade && (tradingHouse.indexOf(good) === -1 || player.occupiedBuildings.office)) ?
+        <button onClick={() => onTrade(good)}>
+          Trade in!
+        </button> : null}
+    </div>
+    : null
+  ))
+
+  if (!goods.some(x => x)) {
+    return <div>No goods</div>
+  }
+
   return <div >
-    {Object.keys(player.goods).map((good: any) => (
-      player.goods[good] ?
-      <div key={good} className={css(styles.goodRow)}>
-        {renderGood(good, player.goods[good])}
-        {onTrade ?
-          <button onClick={() => onTrade(good)}>
-            Trade in!
-          </button> : null}
-      </div>
-      : null
-    ))}
+    {goods}
   </div>
 }
 
